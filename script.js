@@ -10,8 +10,8 @@ const snake =[{
     x: 1, y: 3 
     }]
 
-let direction = 'down'
-
+let direction = "down"
+let intervalId = null ;
 for (let row=0; row < rows ; row++) {
     for (let col=0; col < cols ; col++) {
     const block = document.createElement('div')
@@ -27,7 +27,7 @@ function render() {
         })
 }
 
-setInterval(() => {
+intervalId = setInterval(() => {
 
     let head = null
 
@@ -41,6 +41,10 @@ setInterval(() => {
         head = {x: snake[0].x+1, y:snake[0].y}
     }
 
+    if (head.x <0 || head.x >= rows || head.y < 0 || head.y>= cols) {
+        alert("Game Over")
+        clearInterval(intervalId)
+    }
 
     snake.forEach(segment=> {
     blocks[`${segment.y}-${segment.x}` ].classList.remove("fill")
@@ -49,4 +53,16 @@ setInterval(() => {
     snake.unshift(head)
     snake.pop()
     render()
-}, 400);
+}, 300);
+
+addEventListener("keydown", (event) => {
+    if (event.key == "ArrowUp") {
+        direction = "up"
+    } else if (event.key == "ArrowDown") {
+        direction = "down"
+    } else if (event.key == "ArrowRight") {
+        direction = "right"
+    } else if (event.key == "ArrowLeft") {
+        direction = "left"
+    }
+})
