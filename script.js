@@ -18,13 +18,18 @@ const blocks = [];
 
 
 let score = 0
-let time = 0
-let highScore = `00-00`
+let highScore = localStorage.getItem("highScore") || 0
+let time = `00-00`
+
+highScoreElement.innerText = highScore
 
 let snake = [{x: 1,y: 3}];
 
 let direction = "down";
+
 let intervalId = null;
+let timerintervalId = null;
+
 let food = {x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows)};
 
 for (let row = 0; row < rows; row++) {
@@ -77,15 +82,12 @@ function render() {
         ateFood = true;
 
         score += 10
-        
+        scoreElement.innerText = score;
+
         if (score > highScore) {
     highScore = score;
+    localStorage.setItem("highScore", highScore.toString())
 }
-
-scoreElement.innerText = score;
-highScoreElement.innerText = highScore;
-
-
 
         blocks[`${food.x}-${food.y}`]?.classList.remove("food");
 
@@ -114,34 +116,50 @@ highScoreElement.innerText = highScore;
 
 }
 
-// intervalId = setInterval(() => {
-//     render();
-// }, 300);
-
 startButton.addEventListener("click", () => {
     modal.style.display = "none";
+    intervalId = setInterval(() => { render(); }, 300);
 
-    clearInterval(intervalId);
+    timerintervalId = setInterval(() => {
+        let [min, sec] = time.split("-").map(Number);
 
-    intervalId = setInterval(() => {
-        render();
-    }, 300);
+    if (sec === 60) {
+        min += 1
+        sec = 0
+    } else {
+        sec += 1
+    }
+
+    time = `${min}-${sec}`
+    timeElement.innerText = time
+}, 1000);
 });
 
 restartButton.addEventListener("click", restartGame);
 
 function restartGame() {
-
     clearInterval(intervalId);
+    clearInterval(timerintervalId);
     blocks[`${food.x}-${food.y}`]?.classList.remove("food");
     snake.forEach(segment => {
         blocks[`${segment.x}-${segment.y}`]?.classList.remove("fill");
     });
+
+    score = 0
+    time =`00-00`
+
+    scoreElement.innerText = score
+    timeElement.innerText = time
+    highScoreElement.innerText = highScore
+
     modal.style.display = "none";
-    direction = "down";
     snake = [{x: 1,y: 3}];
     food = {x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows)};
-    intervalId = setInterval(() => {render();}, 300);
+   intervalId = setInterval(render, 300);
+
+    timerintervalId = setInterval(() => {
+    timeElement.innerText = time;
+    }, 1000);
 }
 
 addEventListener("keydown", (event) => {
